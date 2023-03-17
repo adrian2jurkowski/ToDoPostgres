@@ -42,6 +42,9 @@ def add_task():
     description = data.get('description', '')
     done = data.get('done', False)
     new_task = Task(title=title, description=description, done=done)
+    
+    # walidacja if... petla 
+
     db.session.add(new_task)
     db.session.commit()
     return jsonify({'message': 'New task created!'})
