@@ -7,16 +7,16 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/todo_db'
 db = SQLAlchemy(app)
 
-
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150), nullable=False)
     description = db.Column(db.String(150))
     done = db.Column(db.Boolean, default=False)
 
+
     def __repr__(self):
         return f'<Task {self.id}>'
-
+    
 
 @app.route('/tasks', methods=['GET'])
 def get_all_tasks():
@@ -47,21 +47,23 @@ def add_task():
     return jsonify({'message': 'New task created!'})
 
 
-
-@app.route('/tasks/<int:task_id>', methods=['PUT', 'DELETE'])
-def task(task_id):
+@app.route('/tasks/<int:task_id>', methods=['PUT'])
+def update_task(task_id):
     task = Task.query.get_or_404(task_id)
-    if request.method == 'PUT':
-        data = request.get_json()
-        task.title = data['title']
-        task.description = data.get('description', '')
-        task.done = data.get('done', False)
-        db.session.commit()
-        return jsonify({'message': 'Task updated!'})
-    elif request.method == 'DELETE':
-        db.session.delete(task)
-        db.session.commit()
-        return jsonify({'message': 'Task deleted!'})
+    data = request.get_json()
+    task.title = data['title']
+    task.description = data.get('description', '')
+    task.done = data.get('done', False)
+    db.session.commit()
+    return jsonify({'message': 'Task updated!'})
+
+
+@app.route('/tasks/<int:task_id>', methods=['DELETE'])
+def delete_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    db.session.delete(task)
+    db.session.commit()
+    return jsonify({'message': 'Task deleted!'})
 
 
 if __name__ == '__main__':
